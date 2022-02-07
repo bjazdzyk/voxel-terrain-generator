@@ -1,18 +1,23 @@
 import * as THREE from '/js/Three.js';
 import {OrbitControls} from '/js/OrbitControls.js'
+import {FlyControls} from '/js/FlyControls.js'
 
 const scene = new THREE.Scene();
 scene.background=new THREE.Color('skyblue')
 const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
 
+camera.rotation.order = 'YXZ'
+
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize( window.innerWidth, window.innerHeight );
 document.body.appendChild( renderer.domElement );
 
-const controls = new OrbitControls( camera, renderer.domElement );
-
-camera.position.z = 5;
-controls.update()
+const controls = new FlyControls( camera, renderer.domElement );
+controls.movementSpeed = 10;
+controls.domElement = renderer.domElement;
+controls.rollSpeed = Math.PI / 24;
+controls.autoForward = false;
+controls.dragToLook = false;
 
 //poc
 
@@ -79,18 +84,18 @@ const vert = [
   ]
 ]
 
+noise.seed(Math.random())
+
 const positions=[]
 const normals=[]
 const uvs=[]
 
 const blocks={}
 
-for(let i=0;i<2;i++){
-	for(let j=0;j<2;j++){
-		for(let k=0;k<2;k++){
-			if(i==0 && j==0 && k==0){
-				//nie dodajemy
-			}else{
+for(let i=-20;i<20;i++){
+	for(let j=-20;j<20;j++){
+		for(let k=-20;k<20;k++){
+			if(noise.simplex3(i/20, j/20, k/20) >-0.5){
 				blocks[`${i}:${j}:${k}`]=true
 			}
 		}
@@ -111,13 +116,11 @@ for(const block in blocks){
 	x=parseFloat(x)
 	y=parseFloat(y)
 	z=parseFloat(z)
-	console.log(x,y,z)
 	for(const i in nei){
 		const n=nei[i]
 		if(!blocks[`${x+n[0]}:${y+n[1]}:${z+n[2]}`]){
 			for (const vertex of vert[i]) {
 				const posi=vertex.pos.slice(0)
-				console.log(posi)
 				posi[0]/=2;
 				posi[1]/=2;
 				posi[2]/=2;
@@ -150,19 +153,19 @@ geometry.addAttribute(
 
 const mesh=new THREE.Mesh(geometry,new THREE.MeshBasicMaterial( { color: 0x00ff00 } ))
 
-scene.add(mesh)
+const lineMaterial = new THREE.LineBasicMaterial( { color: 0x000000, linewidth: 2} )
+const edges = new THREE.EdgesGeometry( geometry );
+const line = new THREE.LineSegments( edges, lineMaterial);
+scene.add(mesh, line)
 
-
-
-
-
-
-
-//kon
+const clock = new THREE.Clock();
 
 function animate() {
 	requestAnimationFrame( animate );
-
+	// console.log(camera.position)
+	const delta = clock.getDelta();
+	camera.rotation.z = 0
+	controls.update( delta );
 	renderer.render( scene, camera );
 };
 
