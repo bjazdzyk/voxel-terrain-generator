@@ -6,19 +6,21 @@ const scene = new THREE.Scene();
 scene.background=new THREE.Color('skyblue')
 const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
 
-camera.rotation.order = 'YXZ'
-
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize( window.innerWidth, window.innerHeight );
 document.body.appendChild( renderer.domElement );
 
+camera.rotation.order = 'YXZ'
+
 const controls = new FlyControls( camera, renderer.domElement );
 controls.movementSpeed = 10;
 controls.domElement = renderer.domElement;
-controls.rollSpeed = Math.PI / 24;
+controls.rollSpeed = Math.PI / 4;
 controls.autoForward = false;
 controls.dragToLook = false;
 
+camera.position.z = 50
+//controls.update()
 //poc
 
 const vert = [
@@ -84,6 +86,10 @@ const vert = [
   ]
 ]
 
+const crd2str =(x, y, z)=>{
+	return `${x}:${y}:${z}`
+}
+
 noise.seed(Math.random())
 
 const positions=[]
@@ -92,11 +98,22 @@ const uvs=[]
 
 const blocks={}
 
-for(let i=-20;i<20;i++){
-	for(let j=-20;j<20;j++){
-		for(let k=-20;k<20;k++){
-			if(noise.simplex3(i/20, j/20, k/20) >-0.5){
-				blocks[`${i}:${j}:${k}`]=true
+for(let i=-40; i<40; i++){
+	for(let k=-40; k<40; k++){
+		for(let j=0; j<noise.simplex2(i/50, k/50)*5+80; j++){
+			let addBlock = false
+			if(j+42>Math.abs((noise.simplex2(i/80, k/60)*20))){
+				addBlock = true
+			}else if(j+37<Math.abs(noise.simplex2(i/50, k/75)*9)){
+				addBlock = true
+			}
+			if(addBlock){
+				if(noise.simplex3(i/50, j/20, k/50)>0.5){
+					addBlock = false
+				}
+			}
+			if(addBlock){
+				blocks[crd2str(i, j, k)] = true
 			}
 		}
 	}
@@ -163,6 +180,7 @@ const clock = new THREE.Clock();
 function animate() {
 	requestAnimationFrame( animate );
 	// console.log(camera.position)
+
 	const delta = clock.getDelta();
 	camera.rotation.z = 0
 	controls.update( delta );
