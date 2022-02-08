@@ -13,13 +13,14 @@ document.body.appendChild( renderer.domElement );
 camera.rotation.order = 'YXZ'
 
 const controls = new FlyControls( camera, renderer.domElement );
-controls.movementSpeed = 10;
+controls.movementSpeed = 30;
 controls.domElement = renderer.domElement;
 controls.rollSpeed = Math.PI / 4;
 controls.autoForward = false;
 controls.dragToLook = false;
 
 camera.position.z = 50
+camera.position.y = 30
 //controls.update()
 //poc
 
@@ -100,16 +101,19 @@ const blocks={}
 
 for(let i=-40; i<40; i++){
 	for(let k=-40; k<40; k++){
-		for(let j=0; j<noise.simplex2(i/50, k/50)*5+80; j++){
+		for(let j=-30; j<noise.simplex2(i/50, k/50)*5+80; j++){
 			let addBlock = false
-			if(j+42>Math.abs((noise.simplex2(i/80, k/60)*20))){
+			if(j+12>Math.abs((noise.simplex2(i/80, k/60)*20))){
 				addBlock = true
-			}else if(j+37<Math.abs(noise.simplex2(i/50, k/75)*9)){
+			}else if(j+7<Math.abs(noise.simplex2(i/60, k/80)*9)){
 				addBlock = true
 			}
+
 			if(addBlock){
-				if(noise.simplex3(i/50, j/20, k/50)>0.5){
-					addBlock = false
+				if(Math.abs(j-15)/15<noise.simplex3(i/50, j/10, k/50)/2){
+					if(j+6>Math.abs(noise.simplex2(i/50, k/75)*9)){
+						addBlock = false
+					}
 				}
 			}
 			if(addBlock){
