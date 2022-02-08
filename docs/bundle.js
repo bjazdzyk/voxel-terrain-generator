@@ -10,6 +10,11 @@ const renderer = new THREE.WebGLRenderer();
 renderer.setSize( window.innerWidth, window.innerHeight );
 document.body.appendChild( renderer.domElement );
 
+const texture = new THREE.TextureLoader().load( '/assets/stone.png' );
+
+// // immediately use the texture for material creation
+// const material = new THREE.MeshBasicMaterial( { map: texture } );
+
 camera.rotation.order = 'YXZ'
 
 const controls = new FlyControls( camera, renderer.domElement );
@@ -172,12 +177,12 @@ geometry.addAttribute(
     'uv',
     new THREE.BufferAttribute(new Float32Array(uvs), uvNumComponents));
 
-const mesh=new THREE.Mesh(geometry,new THREE.MeshBasicMaterial( { color: 0x00ff00 } ))
+const mesh=new THREE.Mesh(geometry,new THREE.MeshBasicMaterial( { map:texture } ))
 
-const lineMaterial = new THREE.LineBasicMaterial( { color: 0x000000, linewidth: 2} )
-const edges = new THREE.EdgesGeometry( geometry );
-const line = new THREE.LineSegments( edges, lineMaterial);
-scene.add(mesh, line)
+//const lineMaterial = new THREE.LineBasicMaterial( { color: 0x000000, linewidth: 2} )
+//const edges = new THREE.EdgesGeometry( geometry );
+//const line = new THREE.LineSegments( edges, lineMaterial);
+scene.add(mesh)
 
 const clock = new THREE.Clock();
 
